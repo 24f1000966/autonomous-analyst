@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Business Analyst</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        {% if current_user.is_authenticated and current_user.theme_color %}
+            :root {
+                --primary: {{ current_user.theme_color }};
+            }
+        {% endif %}
+    </style>
+    <!-- Chart.js for rendering mini analytics charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    {% if current_user.is_authenticated %}
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-chart-pie text-primary"></i>
+            <span>{% if current_user.company_name %}{{ current_user.company_name }}{% else %}Nexus AI{% endif %}</span>
+        </div>
+        <ul class="sidebar-nav">
+            <li class="sidebar-heading">Workspace</li>
+            <li><a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.path == '/dashboard' else '' }}"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('datasets') }}" class="{{ 'active' if request.path == '/datasets' else '' }}"><i class="fa-solid fa-database"></i> Datasets</a></li>
+            <li><a href="{{ url_for('analysis') }}" class="{{ 'active' if request.path == '/analysis' else '' }}"><i class="fa-solid fa-microchip"></i> AI Analysis</a></li>
+            
+            <li class="sidebar-heading">Intelligence</li>
+            <li><a href="{{ url_for('visualizations') }}" class="{{ 'active' if request.path == '/visualizations' else '' }}"><i class="fa-solid fa-chart-line"></i> Visualizations</a></li>
+            <li><a href="{{ url_for('insights') }}" class="{{ 'active' if request.path == '/insights' else '' }}"><i class="fa-solid fa-lightbulb"></i> Insights</a></li>
+            <li><a href="{{ url_for('recommendations') }}" class="{{ 'active' if request.path == '/recommendations' else '' }}"><i class="fa-solid fa-bullseye"></i> Recommendations</a></li>
+            
+            <li class="sidebar-heading">Tools</li>
+            <li><a href="{{ url_for('reports') }}" class="{{ 'active' if request.path.startswith('/report') else '' }}"><i class="fa-solid fa-file-invoice"></i> Reports</a></li>
+            <li><a href="{{ url_for('ask_ai') }}" class="{{ 'active' if request.path == '/ask-ai' else '' }}"><i class="fa-solid fa-message"></i> Ask AI</a></li>
+            
+            {% if current_user.role == 'admin' %}
+            <li class="sidebar-heading text-danger">Administration</li>
+            <li><a href="{{ url_for('admin') }}" class="{{ 'active' if request.path.startswith('/admin') else '' }}" style="color: var(--danger);"><i class="fa-solid fa-shield"></i> System Admin</a></li>
+            {% endif %}
+        </ul>
+        <div class="sidebar-footer">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-bolt" style="color: var(--warning);"></i> 
+                <div>
+                    <div style="font-weight: 600; color: var(--text-main);">{{ current_user.tier }} Tier</div>
+                    <div style="font-size: 0.8rem;">{{ current_user.credits }} credits remaining</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="main-wrapper" {% if not current_user.is_authenticated %}style="margin-left: 0;"{% endif %}>
+        {% if current_user.is_authenticated %}
+        <div class="topbar">
+            <!-- Context Selector -->
+            <div style="margin-right: auto; display: flex; align-items: center; gap: 1rem;">
+                <span class="text-muted"><i class="fa-solid fa-folder-tree"></i> Context:</span>
+                <select class="form-control" style="width: 250px; padding: 0.4rem 1rem;">
+                    <option value="">Global Overview All Datasets</option>
+                    <option value="1">Q4_Sales_Data.csv</option>
+                    <option value="2">User_Churn_Log.xlsx</option>
+                </select>
+            </div>
+
+            <div class="topbar-icons">
+                <!-- Notifications Bell with Dropdown -->
+                <div class="notification-bell" onclick="this.classList.toggle('active')">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                    
+                    <div class="notification-dropdown" onclick="event.stopPropagation()">
+                        <div class="dropdown-header">Recent Alerts</div>
+                        <div class="dropdown-item">
+                            <i class="fa-solid fa-exclamation-circle text-warning"></i>
+                            <div>
+                                <div style="font-size: 0.9rem; font-weight: 500;">Anomaly Detected</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">Sales dropped by 15% in Region X</div>
+                            </div>
+                        </div>
+                        <div class="dropdown-item">
+                            <i class="fa-solid fa-check-circle text-success"></i>
+                            <div>
+                                <div style="font-size: 0.9rem; font-weight: 500;">Analysis Complete</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">Report generated for Q4_Sales_Data</div>
+                            </div>
+                        </div>
+                        <div class="dropdown-item">
+                            <i class="fa-solid fa-lightbulb text-primary"></i>
+                            <div>
+                                <div style="font-size: 0.9rem; font-weight: 500;">New Recommendation</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">AI suggests re-allocating Q1 budget</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('profile') }}" style="color: var(--text-main); font-size: 1rem; display: flex; align-items: center; gap: 0.8rem; border-left: 1px solid var(--border); padding-left: 1.5rem;">
+                    <img src="https://ui-avatars.com/api/?name={{ current_user.username }}&background=00ffcc&color=0b0f19" style="width: 35px; height: 35px; border-radius: 50%;" alt="Profile">
+                    <span style="font-weight: 500;">{{ current_user.username }} <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem; margin-left: 0.5rem; color: var(--text-muted);"></i></span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Floating Chat Button -->
+        <div class="fab-container">
+            <button class="fab" onclick="window.location.href='{{ url_for('ask_ai') }}'" title="Ask AI">
+                <i class="fa-solid fa-comment-dots"></i>
+            </button>
+        </div>
+        
+        {% else %}
+        <!-- Public topbar -->
+        <div class="topbar" style="justify-content: space-between; padding: 0 4rem;">
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);"><i class="fa-solid fa-chart-pie"></i> Nexus AI</div>
+            <div class="topbar-icons">
+                <a href="{{ url_for('login') }}" style="color: var(--text-main); font-weight: 500;">Sign in</a>
+                <a href="{{ url_for('register') }}" class="btn btn-primary">Start Free Trial</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <main class="container">
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script>
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const bell = document.querySelector('.notification-bell');
+            if (bell && !bell.contains(event.target)) {
+                bell.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

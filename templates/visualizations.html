@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h2>Visualizations</h2>
+    <p style="color: var(--text-muted);">Analytics » Visualizations Gallery</p>
+</div>
+
+<div class="grid">
+    {% for report in reports %}
+        {% if report.chart_path %}
+        <div class="card" style="padding: 1rem; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div style="width: 100%; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                <h4 style="font-weight: 500;">{{ report.filename }}</h4>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Generated {{ report.date_posted.strftime('%b %d, %Y') }}</div>
+            </div>
+            <img src="{{ url_for('static', filename='charts/' ~ report.chart_path) }}" style="max-width: 100%; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+        </div>
+        {% endif %}
+    {% else %}
+    <div style="text-align: center; color: var(--text-muted); grid-column: 1 / -1; padding: 4rem;">
+        No visual data compiled yet. Run an analysis pipeline.
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

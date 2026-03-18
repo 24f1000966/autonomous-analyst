@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 style="font-size: 1.8rem;"><i class="fa-solid fa-shield text-danger"></i> System Admin Panel</h2>
+        <p class="text-muted">Global oversight of all users and platform metrics.</p>
+    </div>
+</div>
+
+<div class="grid-3 mb-3">
+    <div class="stat-card" style="border-left: 4px solid var(--danger);">
+        <div class="stat-icon" style="color: var(--danger); background: rgba(2ef,68,68,0.1);"><i class="fa-solid fa-users"></i></div>
+        <div>
+            <div style="font-size: 1.8rem; font-weight: 700;">{{ users|length }}</div>
+            <div class="text-muted" style="font-size: 0.9rem;">Total Registered Users</div>
+        </div>
+    </div>
+    <div class="stat-card" style="border-left: 4px solid var(--warning);">
+        <div class="stat-icon" style="color: var(--warning); background: rgba(245,158,11,0.1);"><i class="fa-solid fa-file-invoice"></i></div>
+        <div>
+            <div style="font-size: 1.8rem; font-weight: 700;">{{ total_reports }}</div>
+            <div class="text-muted" style="font-size: 0.9rem;">Total Platform Reports</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: 1.5rem;">User Management</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Company</th>
+                <th>Role</th>
+                <th>Credits</th>
+                <th style="text-align: right;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td style="font-weight: 500;">{{ u.username }}<br><small class="text-muted">{{ u.email }}</small></td>
+                <td>{{ u.company_name }}</td>
+                <td>
+                    {% if u.role == 'admin' %}
+                        <span class="badge badge-danger">ADMIN</span>
+                    {% elif u.role == 'manager' %}
+                        <span class="badge badge-warning">MANAGER</span>
+                    {% else %}
+                        <span class="badge badge-success">USER</span>
+                    {% endif %}
+                </td>
+                <td style="font-weight: bold; color: var(--primary);">{{ u.credits }}</td>
+                <td style="text-align: right;">
+                    <form method="POST" action="{{ url_for('admin_add_credits', user_id=u.id) }}" style="display:inline-flex; gap: 0.5rem; align-items: center;">
+                        <input type="number" name="amount" value="50" class="form-control" style="width: 80px; padding: 0.4rem; border-radius: 4px;">
+                        <button type="submit" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;"><i class="fa-solid fa-plus"></i> Credits</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card" style="margin-top: 2rem; border-color: rgba(0, 255, 204, 0.3);">
+    <h4><i class="fa-solid fa-info-circle text-primary"></i> Admin Privileges Explained</h4>
+    <p class="text-muted mt-2" style="font-size: 0.95rem;">
+        As an <strong>admin</strong>, your queries on Datasets and Reports automatically pull globally from every company. Ensure you treat client data with strict privacy guidelines. Assigning credits enables clients to run more analyses.
+    </p>
+</div>
+{% endblock %}

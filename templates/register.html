@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 4rem auto;">
+    <h2 style="margin-bottom: 1.5rem; text-align: center;">Register Account</h2>
+    <form method="POST" action="">
+        <div class="form-group">
+            <label for="username" style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Username</label>
+            <input type="text" id="username" name="username" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="company_name" style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Company / Agency Name</label>
+            <input type="text" id="company_name" name="company_name" class="form-control" required placeholder="To link with your team">
+        </div>
+        <div class="form-group">
+            <label for="role" style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Account Level</label>
+            <select id="role" name="role" class="form-control" required>
+                <option value="user">Standard User (Employee)</option>
+                <option value="manager">Manager / Agency Admin</option>
+            </select>
+            <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">Managers can see all reports from users in the same Company.</small>
+        </div>
+        <div class="form-group">
+            <label for="email" style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Email Address</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="password" style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Password</label>
+            <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 1rem;">Create Account</button>
+    </form>
+    <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted);">
+        Already have an account? <a href="{{ url_for('login') }}">Log in</a>
+    </p>
+</div>
+{% endblock %}

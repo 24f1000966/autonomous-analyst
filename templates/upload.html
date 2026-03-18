@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-header">
+    <div>
+        <h2>Upload Dataset</h2>
+        <p style="color: var(--text-muted);">Provide a dataset to begin the agentic workflow</p>
+    </div>
+</div>
+
+<div class="card">
+    <form method="POST" action="" enctype="multipart/form-data">
+        <label for="file" class="upload-area" style="display: block;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+            <h3 style="margin-bottom: 0.5rem;">Drag & drop your file here</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Supports CSV, Excel (XLSX, XLS). Max size 50MB.</p>
+            <span class="btn btn-outline">Browse Files</span>
+            <input type="file" id="file" name="file" style="display: none;" accept=".csv, .xlsx, .xls">
+        </label>
+        
+        <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-size: 1.1rem;">Analyze Data M.A.N.I.A</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('file').addEventListener('change', function(e) {
+        if(e.target.files.length > 0) {
+            const fileName = e.target.files[0].name;
+            document.querySelector('.upload-area h3').innerText = `Selected: ${fileName}`;
+            document.querySelector('.upload-area').style.borderColor = 'var(--primary)';
+        }
+    });
+</script>
+{% endblock %}

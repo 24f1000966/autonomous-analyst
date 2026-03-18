@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h2>AI Analysis Pipeline</h2>
+    <p style="color: var(--text-muted);">Trigger the Nexus Agent Workflow on your datasets</p>
+</div>
+
+<div class="card" style="max-width: 600px; padding: 2.5rem;">
+    <h3 style="text-align: center; margin-bottom: 2rem;">Launch Autonomous Agents</h3>
+    
+    <div style="display: flex; justify-content: space-between; margin-bottom: 2rem; color: var(--text-muted); border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+        <div style="text-align: center;"><i class="fa-solid fa-broom" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i><br><small>Cleaner</small></div>
+        <div style="text-align: center;"><i class="fa-solid fa-chart-line" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i><br><small>Analyst</small></div>
+        <div style="text-align: center;"><i class="fa-solid fa-lightbulb" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i><br><small>Insights</small></div>
+        <div style="text-align: center;"><i class="fa-solid fa-file-contract" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i><br><small>Reporter</small></div>
+    </div>
+
+    <form method="POST">
+        <div class="form-group">
+            <label style="display: block; margin-bottom: 0.5rem;">Select target dataset</label>
+            <select name="dataset_id" class="form-control" required>
+                <option value="" disabled selected>-- Choose Dataset --</option>
+                {% for ds in datasets %}
+                    <option value="{{ ds.id }}">{{ ds.filename }} ({{ ds.date_uploaded.strftime('%b %d') }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary" style="padding: 1rem; font-size: 1.1rem; width: 100%; border-radius: 8px; font-weight: 600;">
+                <i class="fa-solid fa-play"></i> Run Full Analysis (1 Credit)
+            </button>
+            <button type="button" class="btn btn-outline" style="padding: 0.8rem; width: 100%;" disabled>
+                Detect Anomalies (Coming Soon)
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 style="font-size: 1.8rem;">Command Center</h2>
+        <p class="text-muted">Welcome to your Autonomous Analyst Workspace</p>
+    </div>
+</div>
+
+<!-- 1. Quick Actions Section -->
+<div class="grid-3 mb-3">
+    <a href="{{ url_for('datasets') }}" class="action-card">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <h3>Upload Dataset</h3>
+        <p class="text-muted" style="font-size: 0.85rem;">Ingest CSV or Excel files securely</p>
+    </a>
+    <a href="{{ url_for('analysis') }}" class="action-card">
+        <i class="fa-solid fa-microchip"></i>
+        <h3>Run AI Analysis</h3>
+        <p class="text-muted" style="font-size: 0.85rem;">Trigger the 5-Agent pipeline</p>
+    </a>
+    <a href="{{ url_for('ask_ai') }}" class="action-card">
+        <i class="fa-solid fa-comments"></i>
+        <h3>Ask AI Chat</h3>
+        <p class="text-muted" style="font-size: 0.85rem;">Interrogate your processed reports</p>
+    </a>
+</div>
+
+<!-- 7. Enhanced KPI Cards -->
+<div class="grid-3 mb-3">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-database"></i></div>
+        <div>
+            <div style="font-size: 1.8rem; font-weight: 700;">{{ datasets|length }}</div>
+            <div class="text-muted" style="font-size: 0.9rem;">Datasets Uploaded</div>
+            <div class="trend-up mt-2"><i class="fa-solid fa-arrow-up"></i> +2 this week</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="color: var(--warning); background: rgba(245,158,11,0.1);"><i class="fa-solid fa-file-contract"></i></div>
+        <div>
+            <div style="font-size: 1.8rem; font-weight: 700;">{{ total_reports }}</div>
+            <div class="text-muted" style="font-size: 0.9rem;">Analyses Completed</div>
+            <div class="trend-up mt-2"><i class="fa-solid fa-arrow-up"></i> +12% execution rate</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="color: var(--success); background: rgba(16,185,129,0.1);"><i class="fa-solid fa-lightbulb"></i></div>
+        <div>
+            <div style="font-size: 1.8rem; font-weight: 700;">{{ insights_found }}</div>
+            <div class="text-muted" style="font-size: 0.9rem;">Total Insights Found</div>
+            <div class="trend-flat mt-2"><i class="fa-solid fa-minus"></i> Stable volume</div>
+        </div>
+    </div>
+</div>
+
+<!-- 3. AI Insight of the Day (Highlight Section) -->
+<div class="card insight-highlight mb-3">
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <i class="fa-solid fa-bolt text-primary" style="font-size: 1.5rem;"></i>
+        <h3 style="margin: 0; color: white;">AI Insight of the Day</h3>
+    </div>
+    <p style="font-size: 1.1rem; line-height: 1.6; color: var(--text-main); font-weight: 500; margin-left: 2.5rem; position: relative; z-index: 2;">
+        "Historical patterns show Weekend transactions are <strong>40% higher</strong> than weekdays for Dataset #1. The Recommendation Agent strongly advises reallocating 15% of your mid-week marketing budget to Saturday mornings to maximize ROI."
+    </p>
+</div>
+
+<!-- 2. Mini Analytics Charts -->
+<div class="grid" style="grid-template-columns: 2fr 1fr; margin-bottom: 2rem;">
+    <div class="card">
+        <h4 style="margin-bottom: 1rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Analyses Over Time</h4>
+        <div style="height: 250px;">
+            <canvas id="lineChart"></canvas>
+        </div>
+    </div>
+    <div class="card">
+        <h4 style="margin-bottom: 1rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Dataset Distribution</h4>
+        <div style="height: 250px; display: flex; justify-content: center;">
+            <canvas id="pieChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- 9. Enhanced Recent Activity Table -->
+<div class="card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 style="margin: 0;">Recent Intelligence Activity</h3>
+        <a href="{{ url_for('reports') }}" class="text-primary" style="font-size: 0.9rem; font-weight: 600;">View All Reports &rarr;</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Report Name</th>
+                <th>Rows Processing</th>
+                <th>Date Generated</th>
+                <th>Status</th>
+                <th style="text-align: right;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr>
+                <td style="font-weight: 500;">
+                    <i class="fa-solid fa-file-pdf text-muted" style="margin-right: 8px;"></i>
+                    {{ report.filename }}
+                </td>
+                <td style="color: var(--text-muted);">{{ "{:,}".format(report.rows_processed) }}</td>
+                <td style="color: var(--text-muted);">{{ report.date_posted.strftime('%b %d, %Y') }}</td>
+                <td>
+                    <span class="badge badge-success"><i class="fa-solid fa-check"></i> Completed</span>
+                </td>
+                <td style="text-align: right;">
+                    <a href="{{ url_for('report_view', report_id=report.id) }}" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">View Report</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                    <i class="fa-solid fa-folder-open mb-2" style="font-size: 2rem; color: var(--border);"></i><br>
+                    No analytical pipelines executed yet.<br>
+                    <a href="{{ url_for('datasets') }}" class="btn btn-outline mt-2">Upload your first dataset</a>
+                </td>
+            </tr>
+            {% endfor %}
+            <!-- Mock Processing Row to show the badge architecture requested -->
+            {% if reports|length > 0 %}
+            <tr>
+                <td style="font-weight: 500;">
+                    <i class="fa-solid fa-file-csv text-muted" style="margin-right: 8px;"></i>
+                    Pending_Q1_Audit.csv
+                </td>
+                <td style="color: var(--text-muted);">-</td>
+                <td style="color: var(--text-muted);">Just now</td>
+                <td>
+                    <span class="badge badge-warning"><i class="fa-solid fa-spinner fa-spin"></i> Processing</span>
+                </td>
+                <td style="text-align: right;">
+                    <button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;" disabled>Wait</button>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Chart.js Initialization -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Chart default configs for dark theme
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        
+        // Line Chart
+        const lineCtx = document.getElementById('lineChart').getContext('2d');
+        const gradient = lineCtx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(0, 255, 204, 0.5)');
+        gradient.addColorStop(1, 'rgba(0, 255, 204, 0.0)');
+        
+        new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Analyses Run',
+                    data: [2, 5, 3, 8, 4, 12, 7],
+                    borderColor: '#00ffcc',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#151b2a',
+                    pointBorderColor: '#00ffcc',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        border: { display: false }
+                    },
+                    x: {
+                        grid: { display: false },
+                        border: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Pie Chart
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Sales (.csv)', 'HR Logs (.xlsx)', 'Marketing (.csv)'],
+                datasets: [{
+                    data: [55, 30, 15],
+                    backgroundColor: [
+                        '#00ffcc',
+                        '#3b82f6',
+                        '#8b5cf6'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '75%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20, usePointStyle: true }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
