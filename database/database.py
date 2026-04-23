@@ -46,6 +46,10 @@ class AnalysisReport(db.Model):
     # Memory and Chat context
     memory_context = db.Column(db.Text, nullable=True)
     
+    # Tech Company Upgrades
+    forecast_data = db.Column(db.Text, nullable=True)
+    alerts_data = db.Column(db.Text, nullable=True)
+    
     dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     

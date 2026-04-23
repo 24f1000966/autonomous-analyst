@@ -192,6 +192,10 @@ def analysis():
                 
                 report_content = result['report_summary']
                 
+                # New Predictive Tracking
+                forecast_data = json.dumps(result.get('forecasts', {}))
+                alerts_data = json.dumps(result.get('alerts', []))
+                
                 report = AnalysisReport(
                     filename=ds.filename,
                     dataset_id=ds.id,
@@ -201,7 +205,9 @@ def analysis():
                     insights_content=json.dumps(ai_insights),
                     memory_context=report_content,
                     chart_path=chart_path,
-                    user_id=current_user.id
+                    user_id=current_user.id,
+                    forecast_data=forecast_data,
+                    alerts_data=alerts_data
                 )
                 
                 current_user.credits -= 1
@@ -267,7 +273,10 @@ def report_view(report_id):
             flash('Unauthorized Access', 'danger')
             return redirect(url_for('reports'))
             
-    return render_template('report.html', report=report)
+    alerts_list = json.loads(report.alerts_data) if report.alerts_data else []
+    forecast_dict = json.loads(report.forecast_data) if report.forecast_data else {}
+            
+    return render_template('report.html', report=report, alerts=alerts_list, forecasts=forecast_dict)
 
 @app.route("/report/<int:report_id>/download")
 @login_required
@@ -321,9 +330,17 @@ def api_chat():
     report_id = data.get('report_id')
     
     report = db.session.get(AnalysisReport, report_id)
-    if not report or report.user_id != current_user.id:
-        return jsonify({"error": "Unauthorized"}), 403
+    if not report:
+        return jsonify({"error": "Report not found"}), 404
         
+    if current_user.role == 'manager':
+        users = [u.id for u in User.query.filter_by(company_name=current_user.company_name).all()]
+        if report.user_id not in users:
+            return jsonify({"error": "Unauthorized"}), 403
+    elif current_user.role == 'user':
+        if report.user_id != current_user.id:
+            return jsonify({"error": "Unauthorized"}), 403
+            
     agent = ChatAgent()
     answer = agent.execute(question, report.memory_context)
     
@@ -365,4 +382,4 @@ def admin_add_credits(user_id):
     return redirect(url_for('admin'))
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5002)

@@ -1,49 +1,144 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="hero">
+
+<style>
+    /* Landing Page Specific Styles */
+    .hero {
+        text-align: center;
+        padding: 5rem 1rem;
+        background: radial-gradient(circle at center, #eff6ff 0%, #f8fafc 100%);
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 4rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .hero h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+        letter-spacing: -1px;
+    }
+    .hero p {
+        font-size: 1.2rem;
+        color: #64748b;
+        max-width: 700px;
+        margin: 0 auto 2.5rem auto;
+        line-height: 1.7;
+    }
+    .agent-flow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        margin: 4rem 0;
+        flex-wrap: wrap;
+    }
+    .agent-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        min-width: 140px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .agent-step:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        border-color: #3b82f6;
+    }
+    .agent-step .icon-wrap {
+        font-size: 2.2rem;
+        margin-bottom: 0.8rem;
+        background: #f1f5f9;
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+    .agent-line {
+        height: 3px;
+        width: 40px;
+        background: #cbd5e1;
+        border-radius: 5px;
+    }
+    .feature-card {
+        background: white;
+        padding: 2.5rem 2rem;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+    }
+    .feature-card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+    }
+    .feature-icon {
+        color: #3b82f6;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="hero animate-fade-in">
     <h1>Your Autonomous Business Analyst</h1>
     <p>Upload your messy datasets. Our AI agents will clean it, uncover hidden trends, generate visual dashboards, and deliver actionable business decisions automatically.</p>
     {% if current_user.is_authenticated %}
-        <a href="{{ url_for('upload') }}" class="btn btn-primary" style="font-size: 1.25rem; padding: 1rem 2rem;">Start Analysis</a>
+        <a href="{{ url_for('upload') }}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2.5rem; color: #ffffff !important; box-shadow: 0 4px 14px rgba(37,99,235,0.4); border-radius: 12px;">Start Analysis</a>
     {% else %}
-        <a href="{{ url_for('register') }}" class="btn btn-primary" style="font-size: 1.25rem; padding: 1rem 2rem;">Get Started for Free</a>
+        <a href="{{ url_for('register') }}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2.5rem; color: #ffffff !important; box-shadow: 0 4px 14px rgba(37,99,235,0.4); border-radius: 12px;">Get Started for Free</a>
     {% endif %}
 </div>
 
-<div class="agent-flow">
+<!-- Beautiful Horizontal Agent Flow -->
+<div class="agent-flow animate-fade-in">
     <div class="agent-step">
-        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🧹</div>
-        <div style="font-size: 0.8rem; font-weight: 600;">Data Cleaner</div>
+        <div class="icon-wrap">🧹</div>
+        <div style="font-size: 0.95rem; font-weight: 600; color: #1e293b;">Data Cleaner</div>
+        <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.3rem;">Prepares File</div>
     </div>
     <div class="agent-line"></div>
     <div class="agent-step">
-        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🧠</div>
-        <div style="font-size: 0.8rem; font-weight: 600;">Analyst Agent</div>
+        <div class="icon-wrap">🧠</div>
+        <div style="font-size: 0.95rem; font-weight: 600; color: #1e293b;">Analyst Agent</div>
+        <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.3rem;">Finds Trends</div>
     </div>
     <div class="agent-line"></div>
     <div class="agent-step">
-        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
-        <div style="font-size: 0.8rem; font-weight: 600;">Viz Agent</div>
+        <div class="icon-wrap">📊</div>
+        <div style="font-size: 0.95rem; font-weight: 600; color: #1e293b;">Viz Agent</div>
+        <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.3rem;">Draws Charts</div>
     </div>
     <div class="agent-line"></div>
     <div class="agent-step">
-        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📑</div>
-        <div style="font-size: 0.8rem; font-weight: 600;">Report Writer</div>
+        <div class="icon-wrap">📑</div>
+        <div style="font-size: 0.95rem; font-weight: 600; color: #1e293b;">Report Writer</div>
+        <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.3rem;">Final Product</div>
     </div>
 </div>
 
-<div class="grid" style="margin-top: 5rem;">
-    <div class="card">
-        <h3>End-to-end Automation</h3>
-        <p style="color: var(--text-muted); margin-top: 1rem;">No coding or prompt engineering required. Drop a CSV or Excel file and get a complete 10-page report with charts within minutes.</p>
+<div class="grid grid-3 animate-fade-in" style="margin-top: 5rem; margin-bottom: 3rem;">
+    <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-robot"></i></div>
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem;">End-to-end Automation</h3>
+        <p style="color: #64748b; font-size: 0.95rem; line-height: 1.6;">No coding or prompt engineering required. Drop a CSV or Excel file and get a complete 10-page report with charts within minutes.</p>
     </div>
-    <div class="card">
-        <h3>Actionable Insights</h3>
-        <p style="color: var(--text-muted); margin-top: 1rem;">We don't just show charts. The AI identifies correlations and provides bold business decisions to improve revenue and cut costs.</p>
+    <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-lightbulb" style="color: #f59e0b;"></i></div>
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem;">Actionable Insights</h3>
+        <p style="color: #64748b; font-size: 0.95rem; line-height: 1.6;">We don't just show charts. The AI identifies correlations and provides bold business decisions to improve revenue and cut costs.</p>
     </div>
-    <div class="card">
-        <h3>Enterprise Grade</h3>
-        <p style="color: var(--text-muted); margin-top: 1rem;">Role-based access, secure sandboxed data environments, and integration with your existing company single-sign ons.</p>
+    <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-shield-halved" style="color: #10b981;"></i></div>
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem;">Enterprise Grade</h3>
+        <p style="color: #64748b; font-size: 0.95rem; line-height: 1.6;">Role-based access, secure sandboxed data environments, and integration with your existing company single-sign ons.</p>
     </div>
 </div>
 {% endblock %}

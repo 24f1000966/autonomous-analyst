@@ -1,19 +1,18 @@
 import os
-import google.generativeai as genai
+from google import genai
 
 class ChatAgent:
     def __init__(self):
         self.name = "Chat Agent"
         self.api_key = os.environ.get("GEMINI_API_KEY")
         if self.api_key:
-            genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel('gemini-1.5-pro')
+            self.client = genai.Client(api_key=self.api_key)
         else:
-            self.model = None
+            self.client = None
 
     def execute(self, question, context):
         print(f"[{self.name}] Answering question: {question}")
-        if self.model:
+        if self.client:
             prompt = f"""
             You are an AI Business Analyst Assistant. 
             Answer the user's question based on the following report context.
@@ -26,7 +25,10 @@ class ChatAgent:
             Provide a helpful, concise, and strategic answer. Format your answer elegantly.
             """
             try:
-                response = self.model.generate_content(prompt)
+                response = self.client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=prompt,
+                )
                 return response.text
             except Exception as e:
                 print(f"[{self.name}] Error: {str(e)}")
