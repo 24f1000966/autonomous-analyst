@@ -1,5 +1,53 @@
 {% extends "base.html" %}
 {% block content %}
+{% if current_user.role == 'admin' %}
+    {% set pending_users = users | rejectattr('is_approved') | list %}
+    {% if pending_users %}
+    <div class="card animate-fade-in" style="margin-bottom: 2rem; border-color: rgba(245, 158, 11, 0.5); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);">
+        <h3 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-clock text-warning"></i> Pending User Registrations</h3>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                <thead style="background-color: #f8fafc;">
+                    <tr>
+                        <th style="padding: 1rem 1.5rem; color: var(--text-muted); font-size: 0.8rem; border-bottom: 1px solid var(--border);">Username</th>
+                        <th style="padding: 1rem 1.5rem; color: var(--text-muted); font-size: 0.8rem; border-bottom: 1px solid var(--border);">Company</th>
+                        <th style="padding: 1rem 1.5rem; color: var(--text-muted); font-size: 0.8rem; border-bottom: 1px solid var(--border);">Role</th>
+                        <th style="padding: 1rem 1.5rem; color: var(--text-muted); font-size: 0.8rem; border-bottom: 1px solid var(--border); text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in pending_users %}
+                    <tr>
+                        <td style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); font-weight: 500; color: var(--text-main);">{{ u.username }}<br><small class="text-muted" style="font-weight: 400;">{{ u.email }}</small></td>
+                        <td style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); color: var(--text-main);">{{ u.company_name }}</td>
+                        <td style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);">
+                            {% if u.role == 'admin' %}
+                                <span class="badge badge-danger">ADMIN</span>
+                            {% elif u.role == 'manager' %}
+                                <span class="badge badge-warning">MANAGER</span>
+                            {% else %}
+                                <span class="badge badge-success">USER</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); text-align: right;">
+                            <div style="display: inline-flex; gap: 0.5rem; align-items: center;">
+                                <form method="POST" action="{{ url_for('admin_accept_user', user_id=u.id) }}">
+                                    <button type="submit" class="btn btn-success" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;"><i class="fa-solid fa-check"></i> Accept</button>
+                                </form>
+                                <form method="POST" action="{{ url_for('admin_decline_user', user_id=u.id) }}">
+                                    <button type="submit" class="btn btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;"><i class="fa-solid fa-xmark"></i> Decline</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+{% endif %}
+
 <!-- Welcome Header Section -->
 <div class="mb-5 animate-fade-in"
     style="background: var(--card-bg); padding: 2rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden;">
@@ -157,8 +205,14 @@
                                 style="width: 36px; height: 36px; border-radius: 8px; background: #eff6ff; display: flex; align-items: center; justify-content: center; color: var(--primary);">
                                 <i class="fa-solid fa-file-pdf"></i>
                             </div>
-                            <div style="color: var(--text-main); font-weight: 500; font-size: 0.95rem;">{{
-                                report.filename }}</div>
+                            <div>
+                                <div style="color: var(--text-main); font-weight: 500; font-size: 0.95rem;">{{ report.filename }}</div>
+                                {% if current_user.role == 'admin' %}
+                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
+                                    <i class="fa-solid fa-building" style="margin-right: 0.25rem;"></i>{{ report.author.company_name }}
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
                     </td>
                     <td
@@ -195,6 +249,79 @@
         </table>
     </div>
 </div>
+
+{% if current_user.role == 'admin' %}
+<div class="mb-5 animate-fade-in">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4 class="m-0" style="font-size: 1.1rem; font-weight: 600; color: var(--danger);"><i class="fa-solid fa-shield-halved"></i> System Admin Panel & Governance</h4>
+    </div>
+    
+
+
+    <div class="card p-0" style="overflow: hidden;">
+        <div style="padding: 1.5rem 1.5rem 1rem 1.5rem; border-bottom: 1px solid var(--border);">
+            <h3 style="margin: 0; font-size: 1.2rem; font-weight: 600;">User Management (Approved)</h3>
+        </div>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                <thead style="background-color: #f8fafc;">
+                    <tr>
+                        <th style="padding: 1rem 1.5rem; color: var(--text-muted); font-size: 0.8rem; border-bottom: 1px solid var(--border);">Username</th>
+                        <th style="padding: 1rem 1.5rem; color: var(--text-muted); font-size: 0.8rem; border-bottom: 1px solid var(--border);">Company</th>
+                        <th style="padding: 1rem 1.5rem; color: var(--text-muted); font-size: 0.8rem; border-bottom: 1px solid var(--border);">Role</th>
+                        <th style="padding: 1rem 1.5rem; color: var(--text-muted); font-size: 0.8rem; border-bottom: 1px solid var(--border);">Credits</th>
+                        <th style="padding: 1rem 1.5rem; color: var(--text-muted); font-size: 0.8rem; border-bottom: 1px solid var(--border); text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    {% if u.is_approved %}
+                    <tr>
+                        <td style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); font-weight: 500; color: var(--text-main);">{{ u.username }}<br><small class="text-muted" style="font-weight: 400;">{{ u.email }}</small></td>
+                        <td style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); color: var(--text-main);">{{ u.company_name }}</td>
+                        <td style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);">
+                            {% if u.role == 'admin' %}
+                                <span class="badge badge-danger">ADMIN</span>
+                            {% elif u.role == 'manager' %}
+                                <span class="badge badge-warning">MANAGER</span>
+                            {% else %}
+                                <span class="badge badge-success">USER</span>
+                            {% endif %}
+                            
+                            {% if u.is_blocked %}
+                            <span class="badge" style="background: #ef4444; color: white; margin-left: 0.5rem; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-ban"></i> BLOCKED</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); font-weight: bold; color: var(--primary);">{{ u.credits }}</td>
+                        <td style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); text-align: right;">
+                            <div style="display: inline-flex; gap: 0.5rem; align-items: center;">
+                                <form method="POST" action="{{ url_for('admin_add_credits', user_id=u.id) }}" style="display:inline-flex; gap: 0.5rem; align-items: center;">
+                                    <input type="number" name="amount" value="50" class="form-control" style="width: 80px; padding: 0.4rem; border-radius: 4px;">
+                                    <button type="submit" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;"><i class="fa-solid fa-plus"></i> Credits</button>
+                                </form>
+                                
+                                {% if u.role != 'admin' %}
+                                    {% if u.is_blocked %}
+                                    <form method="POST" action="{{ url_for('admin_unblock_user', user_id=u.id) }}">
+                                        <button type="submit" class="btn btn-success" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;"><i class="fa-solid fa-unlock"></i> Unblock</button>
+                                    </form>
+                                    {% else %}
+                                    <form method="POST" action="{{ url_for('admin_block_user', user_id=u.id) }}">
+                                        <button type="submit" class="btn btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;"><i class="fa-solid fa-ban"></i> Block</button>
+                                    </form>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <!-- Chart.js Initialization -->
 <script>

@@ -10,6 +10,8 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='user')
+    is_approved = db.Column(db.Boolean, default=False)
+    is_blocked = db.Column(db.Boolean, default=False)
     # Customization & Monetization
     credits = db.Column(db.Integer, default=10)
     tier = db.Column(db.String(20), default='Free')
@@ -20,7 +22,7 @@ class User(db.Model, UserMixin):
     reports = db.relationship('AnalysisReport', backref='author', lazy=True)
     
     def __repr__(self):
-        return f"User('{self.username}', '{self.email}', '{self.role}', '{self.tier}')"
+        return f"User('{self.username}', '{self.email}', '{self.role}', '{self.is_approved}', '{self.is_blocked}')"
 
 class Dataset(db.Model):
     id = db.Column(db.Integer, primary_key=True)

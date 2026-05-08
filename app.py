@@ -39,7 +39,7 @@ def create_tables():
     # Auto-create Admin Superuser
     if not User.query.filter_by(email='admin@nexus.ai').first():
         hashed_password = bcrypt.generate_password_hash('admin123').decode('utf-8')
-        admin_user = User(username='SuperAdmin', email='admin@nexus.ai', password=hashed_password, role='admin', tier='Enterprise', credits=9999, company_name='Nexus AI Core')
+        admin_user = User(username='SuperAdmin', email='admin@nexus.ai', password=hashed_password, role='admin', tier='Enterprise', credits=9999, company_name='Nexus AI Core', is_approved=True)
         db.session.add(admin_user)
         db.session.commit()
 
@@ -63,10 +63,10 @@ def register():
         company_name = request.form.get('company_name', 'Nexus AI')
         
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        user = User(username=username, email=email, password=hashed_password, role=role, credits=10, tier='Free', company_name=company_name)
+        user = User(username=username, email=email, password=hashed_password, role=role, credits=10, tier='Free', company_name=company_name, is_approved=False)
         db.session.add(user)
         db.session.commit()
-        flash('Account created successfully! 10 free credits granted.', 'success')
+        flash('Account created successfully! Please wait for admin approval before logging in.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html')
 
@@ -79,6 +79,12 @@ def login():
         password = request.form.get('password')
         user = User.query.filter_by(email=email).first()
         if user and bcrypt.check_password_hash(user.password, password):
+            if user.is_blocked:
+                flash('Your account has been blocked by the admin.', 'danger')
+                return redirect(url_for('login'))
+            if not user.is_approved:
+                flash('Your account is pending admin approval.', 'warning')
+                return redirect(url_for('login'))
             login_user(user, remember=request.form.get('remember'))
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('dashboard'))
@@ -120,12 +126,15 @@ def dashboard():
     rows_processed = sum(r.rows_processed for r in reports)
     insights_found = sum(r.insights_found for r in reports)
     
+    users = User.query.all() if current_user.role == 'admin' else []
+    
     return render_template('dashboard.html', 
                            reports=reports, 
                            total_reports=len(reports), 
                            rows_processed=rows_processed, 
                            insights_found=insights_found,
-                           datasets=datasets)
+                           datasets=datasets,
+                           users=users)
 
 @app.route("/datasets", methods=['GET', 'POST'])
 @login_required
@@ -379,7 +388,55 @@ def admin_add_credits(user_id):
         user.credits += amount
         db.session.commit()
         flash(f'Successfully added {amount} credits to {user.username}.', 'success')
-    return redirect(url_for('admin'))
+    return redirect(request.referrer or url_for('admin'))
+
+@app.route("/admin/accept/<int:user_id>", methods=['POST'])
+@login_required
+def admin_accept_user(user_id):
+    if current_user.role != 'admin':
+        return redirect(url_for('dashboard'))
+    user = db.session.get(User, user_id)
+    if user:
+        user.is_approved = True
+        db.session.commit()
+        flash(f'User {user.username} has been approved.', 'success')
+    return redirect(request.referrer or url_for('admin'))
+
+@app.route("/admin/decline/<int:user_id>", methods=['POST'])
+@login_required
+def admin_decline_user(user_id):
+    if current_user.role != 'admin':
+        return redirect(url_for('dashboard'))
+    user = db.session.get(User, user_id)
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        flash(f'User {user.username} registration has been declined and removed.', 'info')
+    return redirect(request.referrer or url_for('admin'))
+
+@app.route("/admin/block/<int:user_id>", methods=['POST'])
+@login_required
+def admin_block_user(user_id):
+    if current_user.role != 'admin':
+        return redirect(url_for('dashboard'))
+    user = db.session.get(User, user_id)
+    if user and user.role != 'admin':
+        user.is_blocked = True
+        db.session.commit()
+        flash(f'User {user.username} has been blocked.', 'warning')
+    return redirect(request.referrer or url_for('admin'))
+
+@app.route("/admin/unblock/<int:user_id>", methods=['POST'])
+@login_required
+def admin_unblock_user(user_id):
+    if current_user.role != 'admin':
+        return redirect(url_for('dashboard'))
+    user = db.session.get(User, user_id)
+    if user:
+        user.is_blocked = False
+        db.session.commit()
+        flash(f'User {user.username} has been unblocked.', 'success')
+    return redirect(request.referrer or url_for('admin'))
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5002)
+    app.run(debug=True, port=5000)

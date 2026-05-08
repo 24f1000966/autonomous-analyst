@@ -53,11 +53,7 @@
                         class="fa-solid fa-message"></i> Ask AI Chat</a></li>
 
 
-            {% if current_user.role == 'admin' %}
-            <li class="sidebar-heading text-danger">Administration</li>
-            <li><a href="{{ url_for('admin') }}" class="{{ 'active' if request.path.startswith('/admin') else '' }}"
-                    style="color: var(--danger);"><i class="fa-solid fa-shield-halved"></i> Governance</a></li>
-            {% endif %}
+
         </ul>
         <div class="sidebar-footer">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -139,7 +135,7 @@
                     class="fa-solid fa-chart-pie"></i> Nexus AI</div>
             <div class="topbar-icons">
                 <a href="{{ url_for('login') }}" style="color: var(--text-main); font-weight: 500;">Sign in</a>
-                <a href="{{ url_for('register') }}" class="btn btn-primary">Start Free Trial</a>
+                <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
             </div>
         </div>
         {% endif %}

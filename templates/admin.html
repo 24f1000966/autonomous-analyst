@@ -24,8 +24,52 @@
     </div>
 </div>
 
+{% set pending_users = users | rejectattr('is_approved') | list %}
+{% if pending_users %}
+<div class="card" style="margin-bottom: 2rem; border-color: rgba(245, 158, 11, 0.5);">
+    <h3 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-clock text-warning"></i> Pending User Registrations</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Company</th>
+                <th>Role</th>
+                <th style="text-align: right;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in pending_users %}
+            <tr>
+                <td style="font-weight: 500;">{{ u.username }}<br><small class="text-muted">{{ u.email }}</small></td>
+                <td>{{ u.company_name }}</td>
+                <td>
+                    {% if u.role == 'admin' %}
+                        <span class="badge badge-danger">ADMIN</span>
+                    {% elif u.role == 'manager' %}
+                        <span class="badge badge-warning">MANAGER</span>
+                    {% else %}
+                        <span class="badge badge-success">USER</span>
+                    {% endif %}
+                </td>
+                <td style="text-align: right;">
+                    <div style="display: inline-flex; gap: 0.5rem; align-items: center;">
+                        <form method="POST" action="{{ url_for('admin_accept_user', user_id=u.id) }}">
+                            <button type="submit" class="btn btn-success" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;"><i class="fa-solid fa-check"></i> Accept</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('admin_decline_user', user_id=u.id) }}">
+                            <button type="submit" class="btn btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;"><i class="fa-solid fa-xmark"></i> Decline</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
 <div class="card">
-    <h3 style="margin-bottom: 1.5rem;">User Management</h3>
+    <h3 style="margin-bottom: 1.5rem;">User Management (Approved)</h3>
     <table>
         <thead>
             <tr>
@@ -38,6 +82,7 @@
         </thead>
         <tbody>
             {% for u in users %}
+            {% if u.is_approved %}
             <tr>
                 <td style="font-weight: 500;">{{ u.username }}<br><small class="text-muted">{{ u.email }}</small></td>
                 <td>{{ u.company_name }}</td>
@@ -58,6 +103,7 @@
                     </form>
                 </td>
             </tr>
+            {% endif %}
             {% endfor %}
         </tbody>
     </table>
